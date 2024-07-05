@@ -85,15 +85,45 @@ while True:
 
                         now = datetime.now()
                         current_time = now.strftime("%H:%M:%S")
-
-                        # if not os.path.exists(folder_path):
-                        # f"Folder '{folder_path}' created."
+                        current_date = now.date()
+                        year = now.year
+                        month = now.month
 
                         if matches[matchIndex]:
-                            print(studentIds[matchIndex])
-                            f = open(f"todaysAttencance.cv", 'a')
-                            f.write(f'{studentIds[matchIndex]}  {current_time}\n')
-                            f.close()
+                            attendance_dir = f"Attendance/{year}/{month}"
+                            if not os.path.exists(attendance_dir):
+                                os.makedirs(attendance_dir)
+
+                            file_path = f"{attendance_dir}/{current_date}.csv"
+                            roll_no = f'{studentIds[matchIndex]}'
+
+                            # Check if the roll number is already in the file
+                            def is_roll_no_present(file_path, roll_no):
+                                if not os.path.exists(file_path):
+                                    return False
+                                try:
+                                    with open(file_path, 'r') as f:
+                                        for line in f:
+                                            if line.startswith(roll_no):
+                                                return True
+                                    return False
+                                except Exception as e:
+                                    print(f"Error reading from {file_path}: {e}")
+                                    return False
+
+                            # Append the entry only if the roll number is not present
+                            if not is_roll_no_present(file_path, roll_no):
+                                try:
+                                    with open(file_path, 'a') as f:
+                                        f.write(f'{roll_no}  {current_time}\n')
+                                        print(f" Attendance marked for Roll Number {roll_no}.")
+                                except PermissionError:
+                                    print(f"Permission denied to write to {file_path}")
+                                except OSError as e:
+                                    print(f"Error writing to {file_path}: {e}")
+                            else:
+                                print(f"Roll number {roll_no} is already present in the file.")
+                            
                 else:
                     color = (0, 0, 255)
 
